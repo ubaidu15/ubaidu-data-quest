@@ -1,0 +1,41 @@
+{
+  "name": "data_quest_daily",
+  "description": "Rearc Data Quest end-to-end: idempotent ingestion → (only if any source changed) pipeline refresh → Gold cross-language check.",
+  "max_concurrent_runs": 1,
+  "schedule": {
+    "quartz_cron_expression": "0 0 14 * * ?",
+    "timezone_id": "UTC",
+    "pause_status": "PAUSED"
+  },
+  "tasks": [
+    {
+      "task_key": "ingest_bls",
+      "description": "Sync BLS pr folder into the Volume; sets task value changed_files.",
+      "notebook_task": { "notebook_path": "/Users/ubaidurahman.alapurayil@genpact.com/ubaidu-data-quest/notebooks/02_ingest_bls", "source": "WORKSPACE" }
+    },
+    {
+      "task_key": "ingest_population",
+      "description": "Fetch DataUSA population JSON; sets task value total_changed (BLS + population).",
+      "depends_on": [ { "task_key": "ingest_bls" } ],
+      "notebook_task": { "notebook_path": "/Users/ubaidurahman.alapurayil@genpact.com/ubaidu-data-quest/notebooks/03_ingest_population", "source": "WORKSPACE" }
+    },
+    {
+      "task_key": "any_source_changed",
+      "description": "Skip the pipeline when ingestion changed nothing (no reprocessing).",
+      "depends_on": [ { "task_key": "ingest_population" } ],
+      "condition_task": { "op": "GREATER_THAN", "left": "{{tasks.ingest_population.values.total_changed}}", "right": "0" }
+    },
+    {
+      "task_key": "refresh_pipeline",
+      "description": "Refresh Bronze → Silver → Gold (Spark Declarative Pipeline).",
+      "depends_on": [ { "task_key": "any_source_changed", "outcome": "true" } ],
+      "pipeline_task": { "pipeline_id": "e1054e19-a357-4a09-b971-4875982328b1", "full_refresh": false }
+    },
+    {
+      "task_key": "validate_gold_alternatives",
+      "description": "Assert SQL and PySpark implementations of Q1–Q3 match the Gold tables.",
+      "depends_on": [ { "task_key": "refresh_pipeline" } ],
+      "notebook_task": { "notebook_path": "/Users/ubaidurahman.alapurayil@genpact.com/ubaidu-data-quest/notebooks/08_gold_alternatives", "source": "WORKSPACE" }
+    }
+  ]
+}

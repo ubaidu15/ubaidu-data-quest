@@ -149,3 +149,10 @@ spark.createDataFrame(log, schema=spark.table(LOG).schema).write.mode("append").
 # Run summary: what this run did. On a re-run with no upstream changes, every file should say "unchanged".
 display(spark.table(LOG).where(f"run_id = '{RUN_ID}'").groupBy("action").count())
 display(spark.table(LOG).where(f"run_id = '{RUN_ID}'").orderBy("file_name"))
+
+# COMMAND ----------
+
+# Tell the job how many files actually changed (new/changed/removed). The job only refreshes the pipeline if > 0.
+changed_files = sum(1 for entry in log if entry[3] in ("new", "changed", "removed"))
+dbutils.jobs.taskValues.set(key="changed_files", value=changed_files)
+print(f"BLS files changed this run: {changed_files}")

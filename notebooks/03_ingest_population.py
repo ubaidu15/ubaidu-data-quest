@@ -98,3 +98,14 @@ spark.createDataFrame([(RUN_ID, SOURCE, FILE_NAME, action, digest, RUN_TS)],
                       schema=spark.table(LOG).schema).write.mode("append").saveAsTable(LOG)
 
 print(f"Population: {action}")
+
+# COMMAND ----------
+
+# Tell the job whether anything changed across BOTH sources. The job's condition task reads total_changed
+# and skips the pipeline refresh when it's 0 (nothing new means nothing to reprocess).
+# debugValue is used when this notebook is run by hand outside a job.
+pop_changed = 1 if action in ("new", "changed") else 0
+bls_changed = dbutils.jobs.taskValues.get(taskKey="ingest_bls", key="changed_files", default=0, debugValue=0)
+dbutils.jobs.taskValues.set(key="changed_files", value=pop_changed)
+dbutils.jobs.taskValues.set(key="total_changed", value=bls_changed + pop_changed)
+print(f"Changed this run: BLS={bls_changed}, population={pop_changed}")
