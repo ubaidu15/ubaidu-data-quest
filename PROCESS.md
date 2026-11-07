@@ -201,5 +201,3 @@ For this quest I made deliberate, proportionate choices. For a production client
 
 ---
 
-## 4. AI usage
-> _To be written by me._
