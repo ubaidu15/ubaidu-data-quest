@@ -12,4 +12,6 @@ Evidence for the bonus work. Save each PNG in this folder with the exact name be
 | B5 | `B5_alert_definition.png` | Alerts → `data_quest: pipeline health` (click Run/Evaluate first if available) | Query, condition `issue_count > 0`, schedule, status |
 | B6 | `B6_health_view_alert_simulated.png` (optional) | SQL Editor: run the "3 DAYS" simulation from `notebooks/12_ops_health.sql`, **then restore** | `ALERT` + `INGESTION_STALE` reason |
 
-_More rows are added as the bonus items are built (dashboard)._
+| B7 | `B7_dashboard_overview.png` | Dashboards → **Data Quest - US Productivity & Population** (published view) → Overview | Health tiles, Q1 tiles, population chart |
+| B8 | `B8_dashboard_best_year.png` | Same dashboard → **Best year by series** (pick a Sector in the filter, e.g. Manufacturing) | Filters + table (+ chart if it fits) |
+| B9 | `B9_dashboard_hours_population.png` | Same dashboard → **Manufacturing hours vs population** | Line chart + table |

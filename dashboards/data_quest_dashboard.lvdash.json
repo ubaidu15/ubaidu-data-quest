@@ -1,0 +1,913 @@
+{
+  "datasets": [
+    {
+      "name": "ds_q1",
+      "displayName": "Q1 \u00b7 Population stats 2013\u20132018",
+      "queryLines": [
+        "SELECT years_count, mean_population, stddev_population_sample, stddev_population_pop FROM workspace.data_quest.gold_q1_population_stats"
+      ]
+    },
+    {
+      "name": "ds_pop",
+      "displayName": "US population by year",
+      "queryLines": [
+        "SELECT year, population FROM workspace.data_quest.silver_population ORDER BY year"
+      ]
+    },
+    {
+      "name": "ds_q2",
+      "displayName": "Q2 \u00b7 Best year per series",
+      "queryLines": [
+        "SELECT series_id, series_label, sector_name, measure_text, duration_text, best_year, CAST(best_year_value AS DOUBLE) AS best_year_total, periods_in_best_year, value_basis FROM workspace.data_quest.gold_q2_series_best_year"
+      ]
+    },
+    {
+      "name": "ds_q3",
+      "displayName": "Q3 \u00b7 Manufacturing hours (Q1) vs population",
+      "queryLines": [
+        "SELECT year, CAST(value AS DOUBLE) AS pct_change_q1, population FROM workspace.data_quest.gold_q3_prs30006032_q01_population ORDER BY year"
+      ]
+    },
+    {
+      "name": "ds_health",
+      "displayName": "Data freshness",
+      "queryLines": [
+        "SELECT status, date_format(last_successful_refresh_at, 'yyyy-MM-dd HH:mm') AS last_refresh_utc, date_format(bls_source_last_modified, 'yyyy-MM-dd') AS bls_published FROM workspace.data_quest.ops_pipeline_health"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "overview",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "t_intro",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# US Productivity & Population",
+                "Answers built from the **U.S. Bureau of Labor Statistics** (Major Sector Productivity) and **Census population** data (via DataUSA). Use the tabs above: **Best year by series** and **Manufacturing hours vs population**."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "c_status",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_health",
+                  "fields": [
+                    {
+                      "name": "status",
+                      "expression": "`status`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "status",
+                  "displayName": "Data health"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Data health"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "c_refresh",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_health",
+                  "fields": [
+                    {
+                      "name": "last_refresh_utc",
+                      "expression": "`last_refresh_utc`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "last_refresh_utc",
+                  "displayName": "Last refreshed (UTC)"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Last refreshed (UTC)"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "c_bls",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_health",
+                  "fields": [
+                    {
+                      "name": "bls_published",
+                      "expression": "`bls_published`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "bls_published",
+                  "displayName": "BLS last published"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "BLS last published"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "c_mean",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_q1",
+                  "fields": [
+                    {
+                      "name": "mean_population",
+                      "expression": "`mean_population`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "mean_population",
+                  "displayName": "Average US population, 2013\u20132018"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Average US population, 2013\u20132018"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "c_std",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_q1",
+                  "fields": [
+                    {
+                      "name": "stddev_population_sample",
+                      "expression": "`stddev_population_sample`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "stddev_population_sample",
+                  "displayName": "Standard deviation, 2013\u20132018"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Standard deviation, 2013\u20132018"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 5,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "ch_pop",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_pop",
+                  "fields": [
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "population",
+                      "expression": "`population`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "Year"
+                },
+                "y": {
+                  "fieldName": "population",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Population"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "US population by year (2020 not published by Census)"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ]
+    },
+    {
+      "name": "best_year",
+      "displayName": "Best year by series",
+      "layout": [
+        {
+          "widget": {
+            "name": "t_q2",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## In which year did each measure peak?",
+                "For every BLS series, the **best year** is the year with the highest total across its quarters. For the few series published only as an annual average, that average is used (see *How it was calculated*). Filter by sector or measure, or search the table."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_sector",
+            "queries": [
+              {
+                "name": "filter_ds_q2_sector_name",
+                "query": {
+                  "datasetName": "ds_q2",
+                  "fields": [
+                    {
+                      "name": "sector_name",
+                      "expression": "`sector_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "sector_name",
+                    "displayName": "Sector",
+                    "queryName": "filter_ds_q2_sector_name"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Sector"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_measure",
+            "queries": [
+              {
+                "name": "filter_ds_q2_measure_text",
+                "query": {
+                  "datasetName": "ds_q2",
+                  "fields": [
+                    {
+                      "name": "measure_text",
+                      "expression": "`measure_text`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "measure_text",
+                    "displayName": "Measure",
+                    "queryName": "filter_ds_q2_measure_text"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Measure"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "tb_q2",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_q2",
+                  "fields": [
+                    {
+                      "name": "series_label",
+                      "expression": "`series_label`"
+                    },
+                    {
+                      "name": "best_year",
+                      "expression": "`best_year`"
+                    },
+                    {
+                      "name": "best_year_total",
+                      "expression": "`best_year_total`"
+                    },
+                    {
+                      "name": "value_basis",
+                      "expression": "`value_basis`"
+                    },
+                    {
+                      "name": "series_id",
+                      "expression": "`series_id`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "series_label",
+                    "displayName": "What is measured",
+                    "title": "What is measured",
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 0,
+                    "alignContent": "left",
+                    "allowSearch": true,
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "best_year",
+                    "displayName": "Best year",
+                    "title": "Best year",
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 1,
+                    "alignContent": "right",
+                    "allowSearch": false,
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "best_year_total",
+                    "displayName": "Total in best year",
+                    "title": "Total in best year",
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 2,
+                    "alignContent": "right",
+                    "allowSearch": false,
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "value_basis",
+                    "displayName": "How it was calculated",
+                    "title": "How it was calculated",
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 3,
+                    "alignContent": "left",
+                    "allowSearch": true,
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "series_id",
+                    "displayName": "BLS series ID",
+                    "title": "BLS series ID",
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 4,
+                    "alignContent": "left",
+                    "allowSearch": true,
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  }
+                ]
+              },
+              "invisibleColumns": [],
+              "allowHTMLByDefault": false,
+              "itemsPerPage": 25,
+              "paginationSize": "default",
+              "condensed": true,
+              "withRowNumber": false,
+              "frame": {
+                "showTitle": true,
+                "title": "Best year per series"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 9
+          }
+        },
+        {
+          "widget": {
+            "name": "ch_bestyear",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_q2",
+                  "fields": [
+                    {
+                      "name": "best_year",
+                      "expression": "`best_year`"
+                    },
+                    {
+                      "name": "count(series_id)",
+                      "expression": "COUNT(`series_id`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "best_year",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "Best year"
+                },
+                "y": {
+                  "fieldName": "count(series_id)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Number of series"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "How many series peaked in each year"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 13,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ]
+    },
+    {
+      "name": "hours_vs_population",
+      "displayName": "Manufacturing hours vs population",
+      "layout": [
+        {
+          "widget": {
+            "name": "t_q3",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Manufacturing hours worked vs US population",
+                "**Series PRS30006032:** hours worked in manufacturing, % change from the previous quarter, shown for the **1st quarter** of each year. Population is shown where Census published it (from 2013; **2020 was not published** because of COVID data-quality issues)."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "ch_q3",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_q3",
+                  "fields": [
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "pct_change_q1",
+                      "expression": "`pct_change_q1`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "Year"
+                },
+                "y": {
+                  "fieldName": "pct_change_q1",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "% change vs previous quarter"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Q1 change in manufacturing hours worked (%)"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "tb_q3",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_q3",
+                  "fields": [
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "pct_change_q1",
+                      "expression": "`pct_change_q1`"
+                    },
+                    {
+                      "name": "population",
+                      "expression": "`population`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "year",
+                    "displayName": "Year",
+                    "title": "Year",
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 0,
+                    "alignContent": "right",
+                    "allowSearch": false,
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "pct_change_q1",
+                    "displayName": "Q1 % change in hours worked",
+                    "title": "Q1 % change in hours worked",
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 1,
+                    "alignContent": "right",
+                    "allowSearch": false,
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "population",
+                    "displayName": "US population",
+                    "title": "US population",
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 2,
+                    "alignContent": "right",
+                    "allowSearch": false,
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  }
+                ]
+              },
+              "invisibleColumns": [],
+              "allowHTMLByDefault": false,
+              "itemsPerPage": 25,
+              "paginationSize": "default",
+              "condensed": true,
+              "withRowNumber": false,
+              "frame": {
+                "showTitle": true,
+                "title": "Year by year"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 6,
+            "height": 8
+          }
+        }
+      ]
+    },
+    {
+      "name": "about",
+      "displayName": "About the data",
+      "layout": [
+        {
+          "widget": {
+            "name": "t_about",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## About this data",
+                "- **Sources:** BLS Major Sector Productivity and Costs (`download.bls.gov/pub/time.series/pr/`); US population from the Census ACS 1-year estimates via the DataUSA API.",
+                "- **Refresh:** a daily job checks both sources and only reprocesses when something actually changed.",
+                "- **Quality checks:** every load validates file structure and key fields; results are cross-checked in two independent ways.",
+                "- **Reading the numbers:** many BLS series are *% changes* or *indexes*, so a series' 'total' is only meaningful within that series, never across series.",
+                "- **Owner / questions:** Data Quest pipeline (`workspace.data_quest`)."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ]
+    }
+  ]
+}
