@@ -1,0 +1,19 @@
+{
+  "display_name": "data_quest: pipeline health",
+  "custom_summary": "Data Quest health check: ingestion freshness, BLS source freshness, last pipeline outcome, Gold completeness.",
+  "custom_description": "Triggered when ops_pipeline_health reports one or more issues. See the issues column for the reason.",
+  "query_text": "SELECT status, issue_count, array_join(issues, ' | ') AS issues, hours_since_ingestion_check, days_since_bls_published, last_pipeline_state, last_successful_refresh_at FROM workspace.data_quest.ops_pipeline_health",
+  "warehouse_id": "9add3f7eaa856f4b",
+  "evaluation": {
+    "source": { "name": "issue_count", "aggregation": "MAX" },
+    "comparison_operator": "GREATER_THAN",
+    "threshold": { "value": { "double_value": 0 } },
+    "empty_result_state": "ERROR",
+    "notification": { "notify_on_ok": true }
+  },
+  "schedule": {
+    "quartz_cron_schedule": "0 0 15 * * ?",
+    "timezone_id": "UTC",
+    "pause_status": "UNPAUSED"
+  }
+}
